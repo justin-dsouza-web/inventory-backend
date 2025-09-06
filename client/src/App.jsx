@@ -18,7 +18,7 @@ function App() {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/products");
+      const res = await axios.get("https://inventory-backend-self-ten.vercel.app/api/products");
       setProducts(res.data);
     } catch (err) {
       console.error(err);
@@ -32,7 +32,7 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/products", form);
+      await axios.post("https://inventory-backend-self-ten.vercel.app/api/products", form);
       setForm({ name: "", price: "", quantity: "", description: "" });
       fetchProducts();
     } catch (err) {
@@ -43,7 +43,7 @@ function App() {
   // ✅ Delete product
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/products/${id}`);
+      await axios.delete(`https://inventory-backend-self-ten.vercel.app/api/products/${id}`);
       fetchProducts(); // refresh list
     } catch (err) {
       console.error(err);
