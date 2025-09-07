@@ -1,6 +1,14 @@
 // frontend/src/App.jsx
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+// ✅ Detect backend URL automatically
+const API_BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://inventory-backend-self-ten.vercel.app"
+    : "http://localhost:5000";
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -8,8 +16,9 @@ function App() {
     name: "",
     price: "",
     quantity: "",
-    description: ""
+    description: "",
   });
+  const [editingId, setEditingId] = useState(null);
 
   // Fetch products on load
   useEffect(() => {
@@ -18,10 +27,11 @@ function App() {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get("https://inventory-backend-self-ten.vercel.app/api/products");
+      const res = await axios.get(`${API_BASE_URL}/api/products`);
       setProducts(res.data);
     } catch (err) {
       console.error(err);
+      toast.error("Failed to fetch products");
     }
   };
 
@@ -32,22 +42,43 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("https://inventory-backend-self-ten.vercel.app/api/products", form);
+      if (editingId) {
+        // ✅ Edit mode
+        await axios.put(`${API_BASE_URL}/api/products/${editingId}`, form);
+        toast.success("Product updated!");
+        setEditingId(null);
+      } else {
+        // ✅ Add mode
+        await axios.post(`${API_BASE_URL}/api/products`, form);
+        toast.success("Product added!");
+      }
       setForm({ name: "", price: "", quantity: "", description: "" });
       fetchProducts();
     } catch (err) {
       console.error(err);
+      toast.error("Failed to save product");
     }
   };
 
-  // ✅ Delete product
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`https://inventory-backend-self-ten.vercel.app/api/products/${id}`);
-      fetchProducts(); // refresh list
+      await axios.delete(`${API_BASE_URL}/api/products/${id}`);
+      toast.success("Product deleted!");
+      fetchProducts();
     } catch (err) {
       console.error(err);
+      toast.error("Failed to delete product");
     }
+  };
+
+  const handleEdit = (product) => {
+    setForm({
+      name: product.name,
+      price: product.price,
+      quantity: product.quantity,
+      description: product.description,
+    });
+    setEditingId(product._id);
   };
 
   return (
@@ -87,7 +118,7 @@ function App() {
           onChange={handleChange}
           required
         />
-        <button type="submit">Add Product</button>
+        <button type="submit">{editingId ? "Update Product" : "Add Product"}</button>
       </form>
 
       <h2>Product List</h2>
@@ -97,14 +128,34 @@ function App() {
             <b>{p.name}</b> - ₹{p.price} ({p.quantity} pcs) <br />
             <small>{p.description}</small> <br />
             <button
+              onClick={() => handleEdit(p)}
+              style={{
+                marginRight: "5px",
+                background: "blue",
+                color: "white",
+                border: "none",
+                padding: "5px",
+              }}
+            >
+              Edit
+            </button>
+            <button
               onClick={() => handleDelete(p._id)}
-              style={{ marginTop: "5px", color: "white", background: "red", border: "none", padding: "5px" }}
+              style={{
+                marginTop: "5px",
+                color: "white",
+                background: "red",
+                border: "none",
+                padding: "5px",
+              }}
             >
               Delete
             </button>
           </li>
         ))}
       </ul>
+
+      <ToastContainer position="top-right" autoClose={2000} />
     </div>
   );
 }

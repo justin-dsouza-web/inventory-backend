@@ -1,7 +1,6 @@
 const express = require("express");
-const Product = require("../Models/Product");
-
 const router = express.Router();
+const Product = require("../Models/productModel");
 
 // ✅ Get all products
 router.get("/", async (req, res) => {
@@ -9,31 +8,42 @@ router.get("/", async (req, res) => {
     const products = await Product.find();
     res.json(products);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Failed to fetch products" });
   }
 });
 
-// ✅ Add new product
+// ✅ Add a product
 router.post("/", async (req, res) => {
-  console.log("📩 Received POST request:", req.body); // log incoming data
   try {
     const product = new Product(req.body);
     await product.save();
-    res.status(201).json(product);
+    res.json(product);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: "Failed to add product" });
   }
 });
 
-// ✅ Delete product
+// ✅ Delete a product
 router.delete("/:id", async (req, res) => {
-  console.log("🗑️ Deleting product:", req.params.id);
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
-    if (!product) return res.status(404).json({ error: "Product not found" });
+    await Product.findByIdAndDelete(req.params.id);
     res.json({ message: "Product deleted" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Failed to delete product" });
+  }
+});
+
+// ✅ Update a product
+router.put("/:id", async (req, res) => {
+  try {
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true } // ensures the updated doc is returned
+    );
+    res.json(updatedProduct);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update product" });
   }
 });
 

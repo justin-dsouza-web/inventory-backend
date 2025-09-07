@@ -1,12 +1,35 @@
-### Create a product
-POST http://localhost:5000/api/products
+### Test GET all products
+GET https://inventory-backend-self-ten.vercel.app/api/products
+Content-Type: application/json
+
+###
+
+### Test POST add a new product
+POST https://inventory-backend-self-ten.vercel.app/api/products
 Content-Type: application/json
 
 {
   "name": "Laptop",
+  "price": 55000,
   "quantity": 10,
-  "price": 50000
+  "description": "A high-performance laptop"
 }
 
-### Get all products
-GET http://localhost:5000/api/products
+###
+
+### Test DELETE product by ID
+DELETE https://inventory-backend-self-ten.vercel.app/api/products/PRODUCT_ID_HERE
+Content-Type: application/json
+
+###
+
+### Test PUT update a product by ID
+PUT https://inventory-backend-self-ten.vercel.app/api/products/68bd1f46cbe7cd313287c142
+Content-Type: application/json
+
+{
+  "name": "Updated Product Name",
+  "price": 12345,
+  "quantity": 20,
+  "description": "Updated product description"
+}
